@@ -7,11 +7,12 @@ import {
 
 export const createTaskController = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, assignedToId } = req.body;
     const task = await createTaskService({
       title,
       description,
-      userId: req.userId,
+      assignedTo: assignedToId,
+      assignedBy: req.user.id,
     });
     res.status(201).json(task);
   } catch (err) {
@@ -31,19 +32,24 @@ export const getTasksController = async (req, res) => {
 export const updateTaskController = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, status } = req.body; // ✅ include status
+
     const result = await updateTaskService({
       id,
       title,
       description,
+      status,
       userId: req.userId,
     });
-    if (result.count === 0)
-      return res
-        .status(404)
-        .json({ error: "Task not found or not authorized" });
-    res.json({ message: "Updated" });
+
+    res.json({ message: "Task updated", task: result });
   } catch (err) {
+    if (
+      err.message === "Task not found" ||
+      err.message === "Not authorized to update this task"
+    ) {
+      return res.status(404).json({ error: err.message });
+    }
     res.status(500).json({ error: err.message });
   }
 };
