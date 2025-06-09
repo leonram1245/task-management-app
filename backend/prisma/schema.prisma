@@ -14,24 +14,33 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  email    String   @unique
-  password String
-  tasksAssigned   Task[]  @relation("AssignedBy")
-  tasksDelegated  Task[]  @relation("AssignedTo")
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  firstName      String
+  lastName       String
+  tasksAssigned  Task[]   @relation("AssignedBy")
+  tasksDelegated Task[]   @relation("AssignedTo")
 }
 
 model Task {
-  id            Int      @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   title         String
   description   String?
-  isDone        Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isDone        Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  status        TaskStatus  @default(TODO) 
 
   assignedById  String
   assignedToId  String
 
   assignedBy    User     @relation("AssignedBy", fields: [assignedById], references: [id])
   assignedTo    User     @relation("AssignedTo", fields: [assignedToId], references: [id])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
 }
