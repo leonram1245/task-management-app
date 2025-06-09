@@ -7,15 +7,19 @@ const prisma = new PrismaClient();
 async function main() {
   const users = [];
 
-  // 1. Create 5 users
+  // 1. Create 10 users with names
   for (let i = 0; i < 10; i++) {
-    const email = faker.internet.email();
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const email = faker.internet.email({ firstName, lastName });
     const password = await bcrypt.hash("password123", 10);
 
     const user = await prisma.user.create({
       data: {
         email,
         password,
+        firstName,
+        lastName,
       },
     });
 
@@ -37,8 +41,8 @@ async function main() {
           title: faker.lorem.sentence(),
           description: faker.lorem.paragraph(),
           isDone: faker.datatype.boolean(),
-          assignedById: user.id, // 👈 user is assigning the task
-          assignedToId: assignedTo.id, // 👈 assigned to another user
+          assignedById: user.id,
+          assignedToId: assignedTo.id,
         },
       });
     }
