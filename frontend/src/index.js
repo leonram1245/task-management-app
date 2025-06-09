@@ -6,6 +6,8 @@ import { store } from "./redux/store";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/DashboardPage";
+import { Toaster } from "./components/ui/toaster";
+
 const system = createSystem(defaultConfig, { theme: { tokens: {} } });
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -14,6 +16,7 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <ChakraProvider value={system}>
+        <Toaster />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
