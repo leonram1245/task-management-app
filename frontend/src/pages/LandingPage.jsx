@@ -2,7 +2,7 @@ import { Tabs, Box, Flex, Heading, Image } from "@chakra-ui/react";
 import { useSelector, useDispatch } from "react-redux";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
-import { setActiveTab } from "../features/ui/uiSlice";
+import { setActiveTab } from "../features/uiSlice";
 
 const LandingPage = () => {
   const dispatch = useDispatch();

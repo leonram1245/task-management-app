@@ -11,12 +11,15 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { login } from "../features/auth/authSlice";
-import { setActiveTab } from "../features/ui/uiSlice";
+import { useNavigate } from "react-router-dom";
+import { login } from "../features/authSlice";
+import { setActiveTab } from "../features/uiSlice";
 import { validateEmail } from "../utils/validation";
+import { toaster } from "../components/ui/toaster";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loading } = useSelector((state) => state.auth);
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -35,7 +38,7 @@ const LoginPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const isEmailValid = validateEmail(form.email);
@@ -44,7 +47,21 @@ const LoginPage = () => {
       return;
     }
 
-    dispatch(login(form));
+    const result = await dispatch(login(form));
+
+    if (login.fulfilled.match(result)) {
+      toaster.create({
+        title: "Login successful",
+        description: "Welcome back!",
+      });
+      navigate("/dashboard");
+    } else {
+      toaster.create({
+        title: "Login failed",
+        description: result.payload || "Invalid credentials",
+        type: "error",
+      });
+    }
   };
 
   return (
