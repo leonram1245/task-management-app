@@ -56,14 +56,13 @@ export const updateTaskController = async (req, res) => {
 
 export const deleteTaskController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await deleteTaskService({ id, userId: req.userId });
-    if (result.count === 0)
-      return res
-        .status(404)
-        .json({ error: "Task not found or not authorized" });
-    res.json({ message: "Deleted" });
+    const deleted = await deleteTaskService({
+      id: req.params.id,
+      userId: req.user.id,
+    });
+
+    res.json({ message: "Task deleted successfully", task: deleted });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(403).json({ message: err.message || "Unauthorized" });
   }
 };

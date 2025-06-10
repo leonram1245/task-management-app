@@ -5,15 +5,19 @@ export const signupController = async (req, res, next) => {
     const result = await signupService(req.body);
     res.status(201).json(result);
   } catch (err) {
-    next(err);
+    const status = err.statusCode || 400;
+    const message = err.message || "Signup failed";
+    res.status(status).json({ message });
   }
 };
 
-export const loginController = async (req, res, next) => {
+export const loginController = async (req, res) => {
   try {
     const result = await loginService(req.body);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
-    next(err);
+    const status = err.statusCode || 401;
+    const message = err.message || "Login failed";
+    res.status(status).json({ message });
   }
 };

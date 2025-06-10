@@ -6,7 +6,6 @@ import {
 export const searchUsersController = async (req, res) => {
   try {
     const query = req.query.q;
-
     const users = await searchUsersService(query);
     return res.json(users);
   } catch (err) {
