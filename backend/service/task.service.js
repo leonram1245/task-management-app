@@ -41,22 +41,29 @@ export const updateTaskService = async ({
     where: { id: parseInt(id) },
   });
 
+  if (!task) {
+    throw new Error("Task not found");
+  }
+
+  if (task.assignedById !== userId && task.assignedToId !== userId) {
+    throw new Error("Not authorized to update this task");
+  }
+
   return await prisma.task.update({
     where: { id: parseInt(id) },
     data: { title, description, status },
   });
 };
-
 export const deleteTaskService = async ({ id, userId }) => {
   const task = await prisma.task.findFirst({
     where: {
       id: parseInt(id),
-      assignedById: userId, // user must be the creator
+      assignedById: userId,
     },
   });
 
   if (!task) {
-    throw new Error("Task not found or you're not authorized to delete it.");
+    throw new Error("You're not authorized to delete it.");
   }
 
   return await prisma.task.delete({

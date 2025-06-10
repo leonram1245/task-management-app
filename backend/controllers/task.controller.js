@@ -32,7 +32,7 @@ export const getTasksController = async (req, res) => {
 export const updateTaskController = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status } = req.body; // ✅ include status
+    const { title, description, status } = req.body;
 
     const result = await updateTaskService({
       id,
