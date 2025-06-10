@@ -16,7 +16,12 @@ import {
   Select,
   createListCollection,
   Textarea,
+  Menu,
+  Avatar,
+  AvatarGroup,
 } from "@chakra-ui/react";
+
+import { useCallback } from "react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
@@ -24,18 +29,23 @@ import {
   fetchUserTasks,
   createTaskThunk,
   updateTaskThunk,
+  deleteTaskThunk,
 } from "../features/taskSlice";
 import {
   searchUsers,
   clearSuggestions,
   fetchAllUsers,
 } from "../features/userSlice";
+import { logout } from "../features/authSlice";
 import { useDebounce } from "use-debounce";
 import { toaster } from "../components/ui/toaster";
 import { TASK } from "../constants/constants";
+import { useNavigate } from "react-router-dom";
+import { Trash2, Bell } from "lucide-react";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { token, user } = useSelector((state) => state.auth);
   const {
     createdTasks = [],
@@ -68,6 +78,19 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [taskView, setTaskView] = useState(["created"]);
 
+  const getUserNameById = useCallback(
+    (id) => {
+      const found = allUsers.find((u) => u.id === id);
+      return found
+        ? `${found.firstName} ${found.lastName} (${found.email})`
+        : "Unknown";
+    },
+    [allUsers]
+  );
+
+  const getTasksByStatus = (tasks, status) =>
+    tasks.filter((task) => task.status === status);
+
   useEffect(() => {
     if (token) {
       dispatch(fetchUserTasks(token));
@@ -77,7 +100,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (debouncedQuery.trim()) {
-      dispatch(searchUsers(debouncedQuery.trim()));
+      dispatch(searchUsers(debouncedQuery));
     } else {
       dispatch(clearSuggestions());
     }
@@ -179,15 +202,6 @@ const Dashboard = () => {
       });
     }
   };
-  const getUserNameById = (id) => {
-    const found = allUsers.find((u) => u.id === id);
-    return found
-      ? `${found.firstName} ${found.lastName} (${found.email})`
-      : "Unknown";
-  };
-
-  const getTasksByStatus = (tasks, status) =>
-    tasks.filter((task) => task.status === status);
 
   if (loading) {
     return (
@@ -204,8 +218,96 @@ const Dashboard = () => {
   const activeTasks = taskView[0] === "created" ? createdTasks : assignedTasks;
 
   return (
-    <Box p={8} bg="gray.100" minH="100vh">
-      <Stack spacing={10}>
+    <Box p={{ base: 4, md: 8 }} bg="gray.100" minH="100vh">
+      <Stack spacing={{ base: 6, md: 10 }}>
+        <Flex justify="flex-end" align="center">
+          <Menu.Root>
+            <Flex align="center" gap={4}>
+              <Box position="relative" cursor="pointer">
+                <Bell size={20} />
+              </Box>
+              <Menu.Root>
+                <Menu.Trigger asChild>
+                  <Button
+                    variant="ghost"
+                    p={0}
+                    borderRadius="full"
+                    _hover={{ bg: "transparent" }}
+                  >
+                    <Flex align="center" gap={2}>
+                      <Text fontWeight="medium" color="gray.700">
+                        Hi, {user?.firstName} {user?.lastName}
+                      </Text>
+                      <AvatarGroup>
+                        <Avatar.Root>
+                          <Avatar.Fallback>
+                            {user?.firstName?.[0]}
+                            {user?.lastName?.[0]}
+                          </Avatar.Fallback>
+                          <Avatar.Image
+                            src={user?.avatarUrl || ""}
+                            alt={`${user?.firstName} ${user?.lastName}`}
+                          />
+                        </Avatar.Root>
+                      </AvatarGroup>
+                    </Flex>
+                  </Button>
+                </Menu.Trigger>
+
+                <Menu.Positioner>
+                  <Menu.Content
+                    borderRadius="md"
+                    bg="white"
+                    shadow="md"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    minW="150px"
+                    py={2}
+                  >
+                    <Menu.Item
+                      onClick={() => {
+                        dispatch(logout());
+                        navigate("/");
+                      }}
+                    >
+                      <Text
+                        color="red.600"
+                        fontWeight="medium"
+                        cursor="pointer"
+                      >
+                        Logout
+                      </Text>
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Menu.Root>
+            </Flex>
+
+            <Menu.Positioner>
+              <Menu.Content
+                borderRadius="md"
+                bg="white"
+                shadow="md"
+                border="1px solid"
+                borderColor="gray.200"
+                minW="150px"
+                py={2}
+              >
+                <Menu.Item
+                  onClick={() => {
+                    dispatch(logout());
+                    navigate("/");
+                  }}
+                >
+                  <Text color="red.600" fontWeight="medium" cursor={"pointer"}>
+                    Logout
+                  </Text>
+                </Menu.Item>
+              </Menu.Content>
+            </Menu.Positioner>
+          </Menu.Root>
+        </Flex>
+
         <Box>
           <Dialog.Root>
             <Dialog.Trigger asChild>
@@ -216,11 +318,11 @@ const Dashboard = () => {
             <Dialog.Backdrop bg="blackAlpha.500" />
             <Dialog.Positioner>
               <Dialog.Content
+                px={{ base: 4, md: 8 }}
+                py={{ base: 4, md: 6 }}
                 borderRadius="2xl"
                 boxShadow="2xl"
                 bg="white"
-                px={8}
-                py={6}
                 minW="sm"
                 border="1px solid"
                 borderColor="gray.200"
@@ -379,6 +481,8 @@ const Dashboard = () => {
                           colorScheme="teal"
                           isLoading={creating}
                           isDisabled={!form.title.trim() || !form.assignedToId}
+                          Input
+                          w="full"
                         >
                           Create Task
                         </Button>
@@ -426,7 +530,7 @@ const Dashboard = () => {
         </Box>
         <Box>
           <Heading size="md" mb={4} color="teal.700"></Heading>
-          <Flex justify="space-between" gap={4}>
+          <Flex direction={{ base: "column", md: "row" }} gap={4}>
             {TASK.STATUS.map((status) => (
               <motion.div
                 key={status}
@@ -505,6 +609,7 @@ const Dashboard = () => {
                             >
                               {task.title}
                             </Text>
+
                             <Text fontSize="sm" color="gray.600" mt={1}>
                               {taskView[0] === "created"
                                 ? `Assigned to: ${getUserNameById(
@@ -514,6 +619,45 @@ const Dashboard = () => {
                                     task.assignedById
                                   )}`}
                             </Text>
+
+                            {task.assignedById === user?.id && (
+                              <Flex justify="flex-end" mt={2}>
+                                <Button
+                                  size="xs"
+                                  colorScheme="red"
+                                  variant="ghost"
+                                  mt={2}
+                                  onClick={async () => {
+                                    const confirmed = window.confirm(
+                                      "Are you sure you want to delete this task?"
+                                    );
+                                    if (!confirmed) return;
+
+                                    try {
+                                      await dispatch(
+                                        deleteTaskThunk({
+                                          taskId: task.id,
+                                          token,
+                                        })
+                                      ).unwrap();
+                                      toaster.create({
+                                        title: "Task Deleted",
+                                        description:
+                                          "The task was successfully removed.",
+                                      });
+                                    } catch (err) {
+                                      toaster.create({
+                                        title: "Failed to delete task",
+                                        description: err.message,
+                                        status: "error",
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <Trash2 size={16} color="red" />
+                                </Button>
+                              </Flex>
+                            )}
                           </Box>
                         </motion.div>
                       ))
@@ -524,14 +668,11 @@ const Dashboard = () => {
             ))}
           </Flex>
         </Box>
-        {/* View Task Dialog */}
         <Box p={8} bg="gray.100" minH="100vh">
           <Stack spacing={10}>
-            {/* View Task Dialog */}
             {selectedTask && (
               <Box p={8} bg="gray.100" minH="100vh">
                 <Stack spacing={10}>
-                  {/* View Task Dialog */}
                   {selectedTask && (
                     <Dialog.Root
                       open
@@ -540,12 +681,11 @@ const Dashboard = () => {
                       <Dialog.Backdrop bg="blackAlpha.600" />
                       <Dialog.Positioner>
                         <Dialog.Content
+                          px={{ base: 4, md: 8 }}
+                          py={{ base: 4, md: 6 }}
                           borderRadius="2xl"
                           boxShadow="2xl"
                           bg="white"
-                          px={8}
-                          py={6}
-                          minW="sm"
                           border="1px solid"
                           borderColor="gray.200"
                         >
@@ -721,12 +861,12 @@ const Dashboard = () => {
                                       >
                                         Title
                                       </Field.Label>
-                                      <Text
-                                        color="teal.700"
-                                        fontWeight="semibold"
-                                      >
-                                        {selectedTask.title}
-                                      </Text>
+                                      <Input
+                                        value={selectedTask.title}
+                                        isReadOnly
+                                        bg="gray.50"
+                                        focusBorderColor="teal.500"
+                                      />
                                     </Field.Root>
 
                                     <Field.Root>
@@ -737,7 +877,14 @@ const Dashboard = () => {
                                       >
                                         Description
                                       </Field.Label>
-                                      <Text>{selectedTask.description}</Text>
+                                      <Textarea
+                                        value={selectedTask.description}
+                                        isReadOnly
+                                        bg="gray.50"
+                                        minH="100px"
+                                        resize="vertical"
+                                        focusBorderColor="teal.500"
+                                      />
                                     </Field.Root>
 
                                     <Field.Root>

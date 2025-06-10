@@ -56,14 +56,23 @@ const LoginPage = () => {
       });
       navigate("/dashboard");
     } else {
+      let errorMsg = "Login failed. Please try again.";
+      if (result.payload) {
+        errorMsg =
+          typeof result.payload === "string"
+            ? result.payload
+            : JSON.stringify(result.payload);
+      } else if (result.error && result.error.message) {
+        errorMsg = result.error.message;
+      }
+
       toaster.create({
         title: "Login failed",
-        description: result.payload || "Invalid credentials",
+        description: errorMsg,
         type: "error",
       });
     }
   };
-
   return (
     <form onSubmit={handleSubmit}>
       <Center>
@@ -99,11 +108,7 @@ const LoginPage = () => {
               />
             </Field.Root>
 
-            <Flex justify="flex-end">
-              <Link color="blue.500" fontSize="sm" href="#">
-                Forgot Password?
-              </Link>
-            </Flex>
+            <Flex justify="flex-end"></Flex>
 
             <Button type="submit" isLoading={loading}>
               Login

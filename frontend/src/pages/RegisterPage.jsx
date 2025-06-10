@@ -95,7 +95,7 @@ const RegisterPage = () => {
     } else {
       toaster.create({
         title: "Registration failed",
-        description: result.payload || "Please try again.",
+        description: "Please try again.",
         type: "error",
       });
     }
