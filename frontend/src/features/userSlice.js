@@ -1,18 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { searchUsersAPI, fetchAllUsersAPI } from "../api/userApi";
 
 export const searchUsers = createAsyncThunk(
   "users/search",
   async (query, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.token;
-      const response = await axios.get(
-        `http://localhost:3001/api/users/search?q=${query}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      return response.data;
+      return await searchUsersAPI(query, token);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -24,10 +18,7 @@ export const fetchAllUsers = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.token;
-      const response = await axios.get(`http://localhost:3001/api/users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data;
+      return await fetchAllUsersAPI(token);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }

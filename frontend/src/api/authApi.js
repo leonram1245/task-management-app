@@ -1,11 +1,10 @@
 import axios from "axios";
 
 export const loginUser = async (credentials) => {
-  const response = await fetch("http://localhost:3001/api/auth/login", {
-    method: "POST",
-    body: JSON.stringify(credentials),
-    headers: { "Content-Type": "application/json" },
-  });
+  const response = await axios.post(
+    "http://localhost:3001/api/auth/login",
+    credentials
+  );
   return response.data;
 };
 

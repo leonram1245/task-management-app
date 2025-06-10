@@ -203,6 +203,16 @@ const Dashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    toaster.create({
+      title: "Logged out",
+      description: "You have been logged out successfully.",
+      status: "success",
+    });
+    navigate("/");
+  };
+
   if (loading) {
     return (
       <Center minH="100vh">
@@ -221,68 +231,36 @@ const Dashboard = () => {
     <Box p={{ base: 4, md: 8 }} bg="gray.100" minH="100vh">
       <Stack spacing={{ base: 6, md: 10 }}>
         <Flex justify="flex-end" align="center">
+          <Box position="relative" cursor="pointer" mr={4}>
+            <Bell size={20} />
+          </Box>
           <Menu.Root>
-            <Flex align="center" gap={4}>
-              <Box position="relative" cursor="pointer">
-                <Bell size={20} />
-              </Box>
-              <Menu.Root>
-                <Menu.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    p={0}
-                    borderRadius="full"
-                    _hover={{ bg: "transparent" }}
-                  >
-                    <Flex align="center" gap={2}>
-                      <Text fontWeight="medium" color="gray.700">
-                        Hi, {user?.firstName} {user?.lastName}
-                      </Text>
-                      <AvatarGroup>
-                        <Avatar.Root>
-                          <Avatar.Fallback>
-                            {user?.firstName?.[0]}
-                            {user?.lastName?.[0]}
-                          </Avatar.Fallback>
-                          <Avatar.Image
-                            src={user?.avatarUrl || ""}
-                            alt={`${user?.firstName} ${user?.lastName}`}
-                          />
-                        </Avatar.Root>
-                      </AvatarGroup>
-                    </Flex>
-                  </Button>
-                </Menu.Trigger>
-
-                <Menu.Positioner>
-                  <Menu.Content
-                    borderRadius="md"
-                    bg="white"
-                    shadow="md"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    minW="150px"
-                    py={2}
-                  >
-                    <Menu.Item
-                      onClick={() => {
-                        dispatch(logout());
-                        navigate("/");
-                      }}
-                    >
-                      <Text
-                        color="red.600"
-                        fontWeight="medium"
-                        cursor="pointer"
-                      >
-                        Logout
-                      </Text>
-                    </Menu.Item>
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Flex>
-
+            <Menu.Trigger asChild>
+              <Button
+                variant="ghost"
+                p={0}
+                borderRadius="full"
+                _hover={{ bg: "transparent" }}
+              >
+                <Flex align="center" gap={2}>
+                  <Text fontWeight="medium" color="gray.700">
+                    Hi, {user?.firstName} {user?.lastName}
+                  </Text>
+                  <AvatarGroup>
+                    <Avatar.Root>
+                      <Avatar.Fallback>
+                        {user?.firstName?.[0]}
+                        {user?.lastName?.[0]}
+                      </Avatar.Fallback>
+                      <Avatar.Image
+                        src={user?.avatarUrl || ""}
+                        alt={`${user?.firstName} ${user?.lastName}`}
+                      />
+                    </Avatar.Root>
+                  </AvatarGroup>
+                </Flex>
+              </Button>
+            </Menu.Trigger>
             <Menu.Positioner>
               <Menu.Content
                 borderRadius="md"
@@ -293,13 +271,8 @@ const Dashboard = () => {
                 minW="150px"
                 py={2}
               >
-                <Menu.Item
-                  onClick={() => {
-                    dispatch(logout());
-                    navigate("/");
-                  }}
-                >
-                  <Text color="red.600" fontWeight="medium" cursor={"pointer"}>
+                <Menu.Item onClick={handleLogout}>
+                  <Text color="red.600" fontWeight="medium" cursor="pointer">
                     Logout
                   </Text>
                 </Menu.Item>
@@ -481,7 +454,6 @@ const Dashboard = () => {
                           colorScheme="teal"
                           isLoading={creating}
                           isDisabled={!form.title.trim() || !form.assignedToId}
-                          Input
                           w="full"
                         >
                           Create Task

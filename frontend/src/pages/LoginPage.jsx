@@ -56,19 +56,9 @@ const LoginPage = () => {
       });
       navigate("/dashboard");
     } else {
-      let errorMsg = "Login failed. Please try again.";
-      if (result.payload) {
-        errorMsg =
-          typeof result.payload === "string"
-            ? result.payload
-            : JSON.stringify(result.payload);
-      } else if (result.error && result.error.message) {
-        errorMsg = result.error.message;
-      }
-
       toaster.create({
         title: "Login failed",
-        description: errorMsg,
+        description: "Please try again.",
         type: "error",
       });
     }
