@@ -34,3 +34,11 @@ export const updateTaskAPI = async (taskData, token) => {
   });
   return response.data;
 };
+
+export const deleteTaskAPI = async ({ taskId, token }) => {
+  const res = await axios.delete(`${API_URL}/${taskId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return res.data;
+};

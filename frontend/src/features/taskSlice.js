@@ -3,6 +3,7 @@ import {
   fetchUserTasksAPI,
   createTaskAPI,
   updateTaskAPI,
+  deleteTaskAPI,
 } from "../api/taskApi";
 
 export const fetchUserTasks = createAsyncThunk(
@@ -40,6 +41,20 @@ export const updateTaskThunk = createAsyncThunk(
       return await updateTaskAPI(taskData, token);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message || "Failed to update task");
+    }
+  }
+);
+
+export const deleteTaskThunk = createAsyncThunk(
+  "tasks/deleteTask",
+  async ({ taskId, token }, thunkAPI) => {
+    try {
+      await deleteTaskAPI({ taskId, token }); // moved to external API module
+      return taskId;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
   }
 );
@@ -102,6 +117,15 @@ const taskSlice = createSlice({
       .addCase(updateTaskThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(deleteTaskThunk.fulfilled, (state, action) => {
+        const id = action.payload;
+        state.createdTasks = state.createdTasks.filter(
+          (task) => task.id !== id
+        );
+        state.assignedTasks = state.assignedTasks.filter(
+          (task) => task.id !== id
+        );
       });
   },
 });
