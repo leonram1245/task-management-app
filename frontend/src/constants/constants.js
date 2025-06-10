@@ -23,8 +23,8 @@ export const TASK = {
     { label: "Done", value: "DONE" },
   ],
   TASK_VIEW_OPTIONS: [
-    { label: "Created Tasks", value: "created" },
-    { label: "Assigned Tasks", value: "assigned" },
+    { label: "Tasks Created By Me", value: "created" },
+    { label: "Assigned To Me Tasks", value: "assigned" },
   ],
   STATUS: ["TODO", "IN_PROGRESS", "DONE"],
   EDIT_TASK_TITLE: "Edit Task",
