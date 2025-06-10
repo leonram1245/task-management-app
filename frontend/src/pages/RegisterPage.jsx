@@ -118,6 +118,7 @@ const RegisterPage = () => {
                 <Field.Label>First Name</Field.Label>
                 <Input
                   name="firstName"
+                  placeholder="Enter your first name"
                   value={form.firstName}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -134,6 +135,7 @@ const RegisterPage = () => {
                 <Field.Label>Last Name</Field.Label>
                 <Input
                   name="lastName"
+                  placeholder="Enter your last name"
                   value={form.lastName}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -150,6 +152,7 @@ const RegisterPage = () => {
                 <Field.Label>Email</Field.Label>
                 <Input
                   name="email"
+                  placeholder="Enter your email address"
                   value={form.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -167,6 +170,7 @@ const RegisterPage = () => {
                 <Input
                   type="password"
                   name="password"
+                  placeholder="Create a password"
                   value={form.password}
                   onChange={handleChange}
                   onBlur={handleBlur}

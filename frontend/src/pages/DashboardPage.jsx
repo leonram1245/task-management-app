@@ -19,6 +19,7 @@ import {
   Menu,
   Avatar,
   AvatarGroup,
+  IconButton,
 } from "@chakra-ui/react";
 
 import { useCallback } from "react";
@@ -41,7 +42,7 @@ import { useDebounce } from "use-debounce";
 import { toaster } from "../components/ui/toaster";
 import { TASK } from "../constants/constants";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Bell } from "lucide-react";
+import { Trash2, Bell, X } from "lucide-react";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -68,6 +69,7 @@ const Dashboard = () => {
     description: "",
     status: "TODO",
   });
+  const [editFormError, setEditFormError] = useState({ title: "" });
   const taskViewOptions = createListCollection({
     items: TASK.TASK_VIEW_OPTIONS,
   });
@@ -174,7 +176,29 @@ const Dashboard = () => {
     }
   };
 
+  // Edit form handlers with validation
+  const handleEditTitleChange = (e) => {
+    const value = e.target.value;
+    setEditForm((prev) => ({
+      ...prev,
+      title: value,
+    }));
+    setEditFormError({ title: "" });
+  };
+
+  const handleEditTitleBlur = (e) => {
+    const value = e.target.value;
+    if (!value.trim()) {
+      setEditFormError({ title: TASK.TITLE_REQUIRED });
+    }
+  };
+
   const handleEditSubmit = async () => {
+    // Validate title before submitting
+    if (!editForm.title.trim()) {
+      setEditFormError({ title: TASK.TITLE_REQUIRED });
+      return;
+    }
     try {
       await dispatch(
         updateTaskThunk({
@@ -299,8 +323,17 @@ const Dashboard = () => {
                 minW="sm"
                 border="1px solid"
                 borderColor="gray.200"
+                position="relative"
               >
-                <Dialog.CloseTrigger />
+                {/* Close Button */}
+                <Dialog.CloseTrigger asChild>
+                  <X
+                    size={25}
+                    color="#2C7A7B"
+                    style={{ position: "absolute", top: 5, right: 5 }}
+                    cursor={"pointer"}
+                  />
+                </Dialog.CloseTrigger>
                 <Dialog.Header borderBottom="1px solid" borderColor="gray.200">
                   <Dialog.Title
                     fontSize="2xl"
@@ -330,6 +363,7 @@ const Dashboard = () => {
                             isInvalid={!!formError.title}
                             focusBorderColor="teal.500"
                             bg="gray.50"
+                            placeholder={TASK.PLACEHOLDER_TITLE}
                             _focus={{
                               bg: "white",
                               borderColor: "teal.400",
@@ -574,6 +608,7 @@ const Dashboard = () => {
                                     description: task.description || "",
                                     status: task.status,
                                   });
+                                  setEditFormError({ title: "" });
                                 } else {
                                   setIsEditing(false);
                                 }
@@ -660,8 +695,17 @@ const Dashboard = () => {
                           bg="white"
                           border="1px solid"
                           borderColor="gray.200"
+                          position="relative"
                         >
-                          <Dialog.CloseTrigger />
+                          {/* Close Button */}
+                          <Dialog.CloseTrigger asChild>
+                            <X
+                              size={25}
+                              color="#2C7A7B"
+                              style={{ position: "absolute", top: 5, right: 5 }}
+                              cursor={"pointer"}
+                            />
+                          </Dialog.CloseTrigger>
                           <Dialog.Header
                             display="flex"
                             justifyContent="space-between"
@@ -744,13 +788,16 @@ const Dashboard = () => {
                                           boxShadow: "sm",
                                         }}
                                         value={editForm.title}
-                                        onChange={(e) =>
-                                          setEditForm((prev) => ({
-                                            ...prev,
-                                            title: e.target.value,
-                                          }))
-                                        }
+                                        onChange={handleEditTitleChange}
+                                        onBlur={handleEditTitleBlur}
+                                        placeholder={TASK.PLACEHOLDER_TITLE}
+                                        isInvalid={!!editFormError.title}
                                       />
+                                      {editFormError.title && (
+                                        <Text color="red.500" fontSize="sm">
+                                          {editFormError.title}
+                                        </Text>
+                                      )}
                                     </Field.Root>
 
                                     <Field.Root>
@@ -778,6 +825,9 @@ const Dashboard = () => {
                                         }
                                         minH="100px"
                                         resize="vertical"
+                                        placeholder={
+                                          TASK.PLACEHOLDER_DESCRIPTION
+                                        }
                                       />
                                     </Field.Root>
 
@@ -795,6 +845,9 @@ const Dashboard = () => {
                                         )}
                                         isReadOnly
                                         bg="gray.50"
+                                        placeholder={
+                                          TASK.PLACEHOLDER_ASSIGNED_TO
+                                        }
                                       />
                                     </Field.Root>
 
@@ -812,6 +865,9 @@ const Dashboard = () => {
                                         )}
                                         isReadOnly
                                         bg="gray.50"
+                                        placeholder={
+                                          TASK.PLACEHOLDER_ASSIGNED_BY
+                                        }
                                       />
                                     </Field.Root>
 
@@ -838,6 +894,7 @@ const Dashboard = () => {
                                         isReadOnly
                                         bg="gray.50"
                                         focusBorderColor="teal.500"
+                                        placeholder={TASK.PLACEHOLDER_TITLE}
                                       />
                                     </Field.Root>
 
@@ -856,6 +913,9 @@ const Dashboard = () => {
                                         minH="100px"
                                         resize="vertical"
                                         focusBorderColor="teal.500"
+                                        placeholder={
+                                          TASK.PLACEHOLDER_DESCRIPTION
+                                        }
                                       />
                                     </Field.Root>
 
@@ -909,6 +969,9 @@ const Dashboard = () => {
                                         )}
                                         isReadOnly
                                         bg="gray.50"
+                                        placeholder={
+                                          TASK.PLACEHOLDER_ASSIGNED_TO
+                                        }
                                       />
                                     </Field.Root>
 
@@ -926,6 +989,9 @@ const Dashboard = () => {
                                         )}
                                         isReadOnly
                                         bg="gray.50"
+                                        placeholder={
+                                          TASK.PLACEHOLDER_ASSIGNED_BY
+                                        }
                                       />
                                     </Field.Root>
                                   </>

@@ -63,6 +63,7 @@ const LoginPage = () => {
       });
     }
   };
+
   return (
     <form onSubmit={handleSubmit}>
       <Center>
@@ -77,9 +78,11 @@ const LoginPage = () => {
               <Field.Label>Email</Field.Label>
               <Input
                 name="email"
+                placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                autoComplete="email"
               />
               {errors.email && (
                 <Text color="red.500" fontSize="sm">
@@ -93,8 +96,10 @@ const LoginPage = () => {
               <Input
                 type="password"
                 name="password"
+                placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
             </Field.Root>
 
