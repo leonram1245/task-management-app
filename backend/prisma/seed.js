@@ -40,7 +40,6 @@ async function main() {
         data: {
           title: faker.lorem.sentence(),
           description: faker.lorem.paragraph(),
-          isDone: faker.datatype.boolean(),
           assignedById: user.id,
           assignedToId: assignedTo.id,
         },
