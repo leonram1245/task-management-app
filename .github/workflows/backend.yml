@@ -10,42 +10,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 🧾 Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: 🧰 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
 
-      - name: Install dependencies
+      - name: 📦 Install backend dependencies
         working-directory: ./backend
         run: npm install
 
-      - name: Run unit tests
+      - name: 🧪 Run unit tests
         working-directory: ./backend
         run: npm test -- --ci --passWithNoTests
 
-      - name: Upload backend code to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "backend/*"
-          target: "/app"
+      - name: 📝 Write EC2 SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-      - name: Deploy to EC2 via SSH
+      - name: 📤 Upload backend code using rsync
+        run: |
+          rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
+          -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" \
+          ./backend/ ubuntu@${{ secrets.EC2_HOST }}:~/app
+
+      - name: 🚀 Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /app || exit 1
+            echo "📂 Switching to ~/app..."
+            cd ~/app || exit 1
+
+            echo "📝 Creating .env file..."
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+            echo "🛑 Stopping existing container..."
             docker stop task-app-management || true
+
+            echo "🗑️ Removing old container..."
             docker rm task-app-management || true
+
+            echo "🐳 Building Docker image..."
             docker build -t task-management-app . || exit 1
+
+            echo "🚀 Running Docker container..."
             docker run -d --env-file .env -p 3001:80 --name task-app-management task-management-app || exit 1
+
+            echo "✅ Backend deployed successfully."
