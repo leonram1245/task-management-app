@@ -33,22 +33,12 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "📂 Changing directory to /app..."
-            cd app || { echo "❌ app not found"; exit 1; }
+            cd /app || exit 1
+            echo "Creating .env file..."
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
-            echo "🔄 Pulling latest code..."
-            git pull origin main || { echo "❌ Git pull failed"; exit 1; }
-
-            echo "🛑 Stopping old container..."
-            docker stop task-app-management || echo "No running container to stop."
-
-            echo "🗑️ Removing old container..."
-            docker rm task-app-management || echo "No container to remove."
-
-            echo "🐳 Building Docker image..."
-            docker build -t task-management-app  . || { echo "❌ Docker build failed"; exit 1; }
-
-            echo "🚀 Running new Docker container..."
-            docker run -d --env-file .env -p 3001:80 --name task-app-management task-management-app || { echo "❌ Docker run failed"; exit 1; }
-
-            echo "✅ Deployment successful."
+            docker stop task-app-management || true
+            docker rm task-app-management || true
+            docker build -t task-management-app . || exit 1
+            docker run -d --env-file .env -p 3001:80 --name task-app-management task-management-app || exit 1
