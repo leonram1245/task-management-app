@@ -1,0 +1,14 @@
+node_modules
+build
+dist
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+*.log
+.DS_Store
+.env
+.env.*
+npm-debug.log*
+yarn-debug.log*
+Thumbs.db

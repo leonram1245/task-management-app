@@ -6,6 +6,7 @@ COPY package*.json ./
 RUN npm install --production
 
 COPY . .
+RUN npx prisma generate
 
 EXPOSE 3001
 CMD ["npm", "start"]
