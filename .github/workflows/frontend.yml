@@ -19,13 +19,16 @@ jobs:
           node-version: "18"
 
       - name: Install dependencies
+        working-directory: ./frontend
         run: npm install
 
       - name: Run unit tests
+        working-directory: ./frontend
         run: npm test -- --ci --passWithNoTests
 
       - name: Install Vercel CLI
         run: npm install -g vercel
 
       - name: Deploy to Vercel
+        working-directory: ./frontend
         run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
