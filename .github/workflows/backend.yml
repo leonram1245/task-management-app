@@ -26,6 +26,15 @@ jobs:
         working-directory: ./backend
         run: npm test -- --ci --passWithNoTests
 
+      - name: Upload backend code to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "backend/*"
+          target: "/app"
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -33,11 +42,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd app || exit 1
-            echo "Creating .env file..."
+            cd /app || exit 1
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-
             docker stop task-app-management || true
             docker rm task-app-management || true
             docker build -t task-management-app . || exit 1
