@@ -34,7 +34,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "📂 Changing directory to /app..."
-            cd /app || { echo "❌ /app not found"; exit 1; }
+            cd app || { echo "❌ /app not found"; exit 1; }
 
             echo "🔄 Pulling latest code..."
             git pull origin main || { echo "❌ Git pull failed"; exit 1; }
