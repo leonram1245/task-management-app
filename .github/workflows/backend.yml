@@ -69,6 +69,6 @@ jobs:
             docker build -t task-management-app . || { echo "❌ Docker build failed"; exit 1; }
 
             echo "🚀 Running new Docker container..."
-            docker run -d --env-file .env -p 3001:80 --name task-app-management task-management-app || { echo "❌ Docker run failed"; exit 1; }
+            docker run -d --env-file .env -p 3001:3001 --name task-app-management task-management-app || { echo "❌ Docker run failed"; exit 1; }
 
             echo "✅ Backend deployed successfully."
