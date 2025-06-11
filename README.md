@@ -81,9 +81,9 @@ JWT_SECRET=your_jwt_secret
 
 ## Access API documentation (Swagger) (For Development)
 
-```
- http://localhost:3001/api-docs
-```
+[http://localhost:3001/api-docs](http://localhost:3001/api-docs)
+
+## Run Backend Locally
 
 ```bash
 ## Install dependencies
@@ -98,7 +98,22 @@ npm run seed
 # Run tests
 npm run test
 
-# Install dependencies
+```
+
+## Run Frontend Locally
+
+```bash
+## Install dependencies
 npm install
 
+# Start in development mode
+npm run start
+```
+
+## Running Frontend and Backend via Docker
+
+You can start both the frontend and backend services using Docker Compose:
+
+```
+docker compose up
 ```
