@@ -36,7 +36,7 @@ jobs:
         run: |
           rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
           -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" \
-          ./backend/ ubuntu@${{ secrets.EC2_HOST }}:~/app
+          ./backend/ ubuntu@${{ secrets.EC2_HOST }}:/app
 
       - name: 🚀 Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
