@@ -34,7 +34,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "📂 Changing directory to /app..."
-            cd app || { echo "❌ /app not found"; exit 1; }
+            cd app || { echo "❌ app not found"; exit 1; }
 
             echo "🔄 Pulling latest code..."
             git pull origin main || { echo "❌ Git pull failed"; exit 1; }
@@ -46,9 +46,9 @@ jobs:
             docker rm task-app-management || echo "No container to remove."
 
             echo "🐳 Building Docker image..."
-            docker build -t task-app-management . || { echo "❌ Docker build failed"; exit 1; }
+            docker build -t task-management-app  . || { echo "❌ Docker build failed"; exit 1; }
 
             echo "🚀 Running new Docker container..."
-            docker run -d --env-file .env -p 3001:80 --name task-app-management task-app-management || { echo "❌ Docker run failed"; exit 1; }
+            docker run -d --env-file .env -p 3001:80 --name task-app-management task-management-app || { echo "❌ Docker run failed"; exit 1; }
 
             echo "✅ Deployment successful."
