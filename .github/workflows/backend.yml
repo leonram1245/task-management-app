@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -19,9 +19,11 @@ jobs:
           node-version: "18"
 
       - name: Install dependencies
+        working-directory: ./backend
         run: npm install
 
       - name: Run unit tests
+        working-directory: ./backend
         run: npm test -- --ci --passWithNoTests
 
       - name: Deploy to EC2 via SSH
@@ -31,9 +33,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/your-backend-folder
+            cd ~/task-management-app/backend
             git pull origin main
             docker stop task-app-management || true
             docker rm task-app-management || true
-            docker build -t your-image-name .
-            docker run -d --env-file .env -p 3001:80 --name task-app-management your-image-name
+            docker build -t task-app-management .
+            docker run -d --env-file .env -p 3001:80 --name task-app-management task-app-management
