@@ -10,13 +10,7 @@ app.use(express.json());
 
 const allowedOrigins = ["https://task-management-appv1.vercel.app"];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-);
-
+app.use(cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/tasks", taskRoutes);
