@@ -26,7 +26,7 @@ jobs:
         working-directory: ./backend
         run: npm test -- --ci --passWithNoTests
 
-      - name: 📤 Upload backend code to EC2 via rsync
+      - name: 🔐 Write EC2 SSH key
         run: |
           echo "🔐 Writing EC2 SSH private key to ~/.ssh/id_rsa..."
           mkdir -p ~/.ssh
@@ -34,26 +34,13 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           echo "✅ SSH key written."
 
-          echo "📍 Current working directory:"
-          pwd
-
-          echo "📂 Listing files in root:"
-          ls -al
-
-          echo "📂 Changing into ./backend directory..."
-          cd backend || { echo "❌ backend directory not found"; exit 1; }
-
-          echo "📍 Now in directory:"
-          pwd
-
-          echo "📂 Listing backend directory contents:"
-          ls -al
-
-          echo "📡 Running rsync to EC2..."
+      - name: 📤 Upload backend code to EC2 via rsync
+        run: |
+          echo "📡 Running rsync from ./backend..."
+          cd backend
           rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
             -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" \
-            . ubuntu@${{ secrets.EC2_HOST }}:~/app || { echo "❌ rsync failed"; exit 1; }
-
+            . ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app
           echo "✅ rsync upload complete."
 
       - name: 🚀 Deploy on EC2 via SSH
@@ -63,18 +50,18 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "📂 Switching to /app directory..."
-            cd /app || { echo "❌ /app not found"; exit 1; }
+            echo "📂 Switching to /home/ubuntu/app..."
+            cd /home/ubuntu/app || { echo "❌ /home/ubuntu/app not found"; exit 1; }
 
             echo "📝 Creating .env file..."
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
-            echo "🛑 Stopping existing container (if any)..."
-            docker stop task-app-management || echo "No container running."
+            echo "🛑 Stopping existing container..."
+            docker stop task-app-management || true
 
-            echo "🗑️ Removing old container (if any)..."
-            docker rm task-app-management || echo "No container to remove."
+            echo "🗑️ Removing old container..."
+            docker rm task-app-management || true
 
             echo "🐳 Building Docker image..."
             docker build -t task-management-app . || { echo "❌ Docker build failed"; exit 1; }
@@ -82,4 +69,4 @@ jobs:
             echo "🚀 Running new Docker container..."
             docker run -d --env-file .env -p 3001:80 --name task-app-management task-management-app || { echo "❌ Docker run failed"; exit 1; }
 
-            echo "✅ Deployment complete."
+            echo "✅ Backend deployed successfully."
