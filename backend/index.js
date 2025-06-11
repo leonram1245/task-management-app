@@ -7,7 +7,15 @@ import { swaggerUi, swaggerDocument } from "./swagger.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+const allowedOrigins = ["https://task-management-appv1.vercel.app"];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
