@@ -33,9 +33,22 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /app/backend
-            git pull origin main
-            docker stop task-app-management || true
-            docker rm task-app-management || true
-            docker build -t task-app-management .
-            docker run -d --env-file .env -p 3001:80 --name task-app-management task-app-management
+            echo "📂 Changing directory to /app/backend..."
+            cd /app/backend || { echo "❌ /app/backend not found"; exit 1; }
+
+            echo "🔄 Pulling latest code..."
+            git pull origin main || { echo "❌ Git pull failed"; exit 1; }
+
+            echo "🛑 Stopping old container..."
+            docker stop task-app-management || echo "No running container to stop."
+
+            echo "🗑️ Removing old container..."
+            docker rm task-app-management || echo "No container to remove."
+
+            echo "🐳 Building Docker image..."
+            docker build -t task-app-management . || { echo "❌ Docker build failed"; exit 1; }
+
+            echo "🚀 Running new Docker container..."
+            docker run -d --env-file .env -p 3001:80 --name task-app-management task-app-management || { echo "❌ Docker run failed"; exit 1; }
+
+            echo "✅ Deployment successful."
