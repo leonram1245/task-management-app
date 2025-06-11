@@ -40,7 +40,7 @@ jobs:
           cd backend
           rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
             -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" \
-            . ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app
+            . ubuntu@${{ secrets.EC2_HOST }}:~/app
           echo "✅ rsync upload complete."
 
       - name: 🚀 Deploy on EC2 via SSH
