@@ -3,6 +3,8 @@ name: Frontend CI/CD
 on:
   push:
     branches: [main]
+    paths:
+      - "frontend/**" # only trigger when files in frontend/ change
   workflow_dispatch:
 
 jobs:
