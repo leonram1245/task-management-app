@@ -33,7 +33,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            script: |
             cd /app/backend
             git pull origin main
             docker stop task-app-management || true
