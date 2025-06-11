@@ -26,20 +26,19 @@ jobs:
         working-directory: ./backend
         run: npm test -- --ci --passWithNoTests
 
-      - name: 📝 Write EC2 SSH key
+      - name: 📤 Upload backend code to EC2 via rsync
         run: |
           echo "🔐 Writing EC2 SSH private key to ~/.ssh/id_rsa..."
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          echo "✅ SSH key written."
+          echo "✅ SSH key set."
 
-      - name: 📤 Upload backend code to EC2 via rsync
-        run: |
-          echo "📡 Starting rsync to EC2 instance..."
+          echo "📡 Running rsync from inside ./backend..."
+          cd backend
           rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
             -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" \
-            ./backend/ ubuntu@${{ secrets.EC2_HOST }}:app
+            . ubuntu@${{ secrets.EC2_HOST }}:~/app
           echo "✅ rsync upload complete."
 
       - name: 🚀 Deploy on EC2 via SSH
