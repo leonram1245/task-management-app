@@ -25,6 +25,7 @@ const RegisterPage = () => {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "", // Add confirmPassword
   });
 
   const [errors, setErrors] = useState({
@@ -32,12 +33,18 @@ const RegisterPage = () => {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "", // Add confirmPassword error
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    // If changing password or confirmPassword, clear both errors
+    if (name === "password" || name === "confirmPassword") {
+      setErrors((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+    }
   };
 
   const handleBlur = (e) => {
@@ -55,6 +62,20 @@ const RegisterPage = () => {
         ...prev,
         password: passwordIssues.length ? passwordIssues.join(", ") : "",
       }));
+      // Confirm password check as well if filled
+      if (form.confirmPassword && form.confirmPassword !== value) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Passwords do not match",
+        }));
+      }
+    } else if (name === "confirmPassword") {
+      if (value !== form.password) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Passwords do not match",
+        }));
+      }
     }
   };
 
@@ -68,23 +89,29 @@ const RegisterPage = () => {
       ? "First name is required"
       : "";
     const lastNameError = !form.lastName.trim() ? "Last name is required" : "";
+    const confirmPasswordError =
+      form.password !== form.confirmPassword ? "Passwords do not match" : "";
 
     if (
       !isEmailValid ||
       passwordErrors.length > 0 ||
       firstNameError ||
-      lastNameError
+      lastNameError ||
+      confirmPasswordError
     ) {
       setErrors({
         firstName: firstNameError,
         lastName: lastNameError,
         email: isEmailValid ? "" : "Invalid email format",
         password: passwordErrors.join(", "),
+        confirmPassword: confirmPasswordError,
       });
       return;
     }
 
-    const result = await dispatch(register(form));
+    // Remove confirmPassword before sending to backend
+    const { confirmPassword, ...registerForm } = form;
+    const result = await dispatch(register(registerForm));
 
     if (register.fulfilled.match(result)) {
       toaster.create({
@@ -179,6 +206,25 @@ const RegisterPage = () => {
                 {errors.password && (
                   <Text color="red.500" fontSize="sm">
                     {errors.password}
+                  </Text>
+                )}
+              </Field.Root>
+
+              {/* Confirm Password Field */}
+              <Field.Root>
+                <Field.Label>Confirm Password</Field.Label>
+                <Input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Re-enter your password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={!!errors.confirmPassword}
+                />
+                {errors.confirmPassword && (
+                  <Text color="red.500" fontSize="sm">
+                    {errors.confirmPassword}
                   </Text>
                 )}
               </Field.Root>
